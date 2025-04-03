@@ -45,6 +45,8 @@ function Product() {
   // const addToCart = (product) => {
   //   setCart([...cart, { ...product }]);
   // };
+  const [moreInfoIndex, setMoreInfoIndex] = useState(-1);
+
   const addToCart = (product) => {
     let index = cart.findIndex((ele, index) => ele?.id == product?.id);
     if (index == -1) {
@@ -71,8 +73,8 @@ function Product() {
   );
 
   const [moreInfo, setMoreInfo] = useState(false);
-  const handleClick = () => {
-    setMoreInfo(!moreInfo);
+  const handleClick = (index) => {
+    setMoreInfoIndex(index);
     console.log(moreInfo);
   };
 
@@ -128,7 +130,7 @@ function Product() {
         </div> */}
 
         <div className="flex">
-          {(cat == "all" ? products : cart).map((product) => (
+          {(cat == "all" ? products : cart).map((product, index) => (
             <div
               key={product.id}
               className="w-1/3  m-1  h-auto border-1px border-solid border-black"
@@ -145,8 +147,14 @@ function Product() {
               <p className="text-gray-400"> {product.count}</p>
               <h1>{moreInfo}</h1>
 
-              <button onClick={handleClick}>More-Info</button>
-              {moreInfo && (
+              <button
+                onClick={() => {
+                  handleClick(index);
+                }}
+              >
+                More-Info
+              </button>
+              {moreInfoIndex == index && (
                 <div className="text-gray-400">{product.moreInfo}</div>
               )}
 
