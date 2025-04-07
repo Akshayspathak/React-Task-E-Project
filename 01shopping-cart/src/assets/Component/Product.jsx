@@ -1,8 +1,10 @@
 import React, { useState } from "react";
-import { IoMdClose } from "react-icons/io";
+import { Modal, Button } from "react-bootstrap";
 
 function Product() {
   const [cart, setCart] = useState([]);
+  const [showModal, setShowModel] = useState(false);
+  const [currentProduct, setCcurrentProduct] = useState(null);
 
   const products = [
     {
@@ -46,6 +48,7 @@ function Product() {
   //   setCart([...cart, { ...product }]);
   // };
   const [moreInfoIndex, setMoreInfoIndex] = useState(-1);
+  ``;
 
   const addToCart = (product) => {
     let index = cart.findIndex((ele, index) => ele?.id == product?.id);
@@ -53,16 +56,35 @@ function Product() {
       let arrT = [...cart];
       arrT.push(product);
       setCart(arrT);
-    } else {
+    } else if (index != -1) {
       let arrT = [...cart];
       arrT[index].count++;
-      // arrT.push(product)
+      setCart(arrT);
+    } else {
+      let arrT = [...cart];
+      arrT[index].count--;
       setCart(arrT);
     }
   };
 
   const removeFromCart = (productId) => {
     setCart(cart.filter((item) => item.id !== productId));
+  };
+
+  const incrementCount = (productId) => {
+    setCart(
+      cart.map((item) =>
+        item.id === productId ? { ...item, count: item.count + 1 } : item
+      )
+    );
+  };
+
+  const decrementCount = (productId) => {
+    setCart(
+      cart.map((item) =>
+        item.id === productId ? { ...item, count: item.count - 1 } : item
+      )
+    );
   };
 
   // const totalPrice = cart.reduce((total, item) => total + item.carPrice, 0);
@@ -79,6 +101,13 @@ function Product() {
   };
 
   const [cat, setCat] = useState("all");
+
+  const handleShow = () => {
+    setShowModel(true);
+  };
+  const handleClose = () => {
+    setShowModel(false);
+  };
 
   return (
     <>
@@ -98,12 +127,12 @@ function Product() {
           // className="text-3xl font-bold text-center"
           onClick={() => {
             setCat("cart");
+            handleShow();
           }}
         >
           Cart
         </button>
         {/* {cat == "cart" && <h1>totl price ={totalPrice}</h1>} */}
-
         {/* <div className="grid grid-cols-3 gap-4 mt-6">
           {products.map((product) => (
             <div key={product.id} className="border  p-4 rounded-lg shadow-lg">
@@ -128,7 +157,6 @@ function Product() {
             </div>
           ))}
         </div> */}
-
         <div className="flex">
           {(cat == "all" ? products : cart).map((product, index) => (
             <div
@@ -148,6 +176,7 @@ function Product() {
               <h1>{moreInfo}</h1>
 
               <button
+                className="bg-blue-500 text-white px-4 py-2 rounded-md mt-2 hover:bg-blue-700 w-full"
                 onClick={() => {
                   handleClick(index);
                 }}
@@ -158,7 +187,7 @@ function Product() {
                 <div className="text-gray-400">{product.moreInfo}</div>
               )}
 
-              {cat == "all" && (
+              {cat === "all" && (
                 <button
                   onClick={() => addToCart(product)}
                   className="bg-blue-500 text-white px-4 py-2 rounded-md mt-2 horver:bg-blue-700 w-full"
@@ -166,10 +195,24 @@ function Product() {
                   Add To Cart
                 </button>
               )}
-              {cat == "cart" && (
+              {cat === "cart" && (
                 <>
-                  <p> count :- {product?.count}</p>
+                  <p> count :- {product.count}</p>
                   <p>price:- {product.count * product.carPrice} Cr</p>
+
+                  <button
+                    onClick={() => incrementCount(product.id)}
+                    className="bg-green-500 p-4 rounded-lg"
+                  >
+                    Increment
+                  </button>
+                  <button
+                    onClick={() => decrementCount(product.id)}
+                    className="bg-green-500 p-4 rounded-lg ml-2"
+                  >
+                    Decrement
+                  </button>
+
                   <div className="flex justify-between items-center mt-2">
                     <button
                       onClick={() => removeFromCart(product.id)}
@@ -183,7 +226,7 @@ function Product() {
             </div>
           ))}
         </div>
-
+        {/* // Bootstrap Modal for Cart */}
         {/* <div className="mt-8">
           <h2 className="text-2xl font-bold">Cart</h2>
           {cart.length === 0 ? (
@@ -213,6 +256,55 @@ function Product() {
           )}
           <IoMdClose />
         </div> */}
+        <Modal show={showModal} onHide={handleClose}>
+          <Modal.Header closeButton>
+            <Modal.Title>Cart</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            {cart.length === 0 ? (
+              <p className="text-gray-500 mt-4"> Your Cart is empty</p>
+            ) : (
+              <div className="mt-6">
+                <ul>
+                  {cart.map((item, index) => (
+                    <li>
+                      key = {index}
+                      <div className="flex justify-between items-center py-2">
+                        <span>{item.carName}</span>
+                        <span>{item.count}</span>
+                        <span>{item.carPrice}</span>
+                        <span>{item.count * item.carPrice}</span>
+                      </div>
+                      <div className="flex justify-between items-center mt-2">
+                        <button
+                          onClick={() => incrementCount(item.id)}
+                          className="bg-green-500 p-4 rounded-lg"
+                        >
+                          Increment
+                        </button>
+                        <button
+                          onClick={() => decrementCount(item.id)}
+                          className="bg-green-500 p-4 rounded-lg ml-2"
+                        >
+                          Decrement
+                        </button>
+                        <button
+                          onClick={() => removeFromCart(item.id)}
+                          className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-700 mt-2 w-full"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                      <div className="text-xl font-bold mt-4">
+                        price:- {item.count * item.carPrice} Cr
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </Modal.Body>
+        </Modal>
       </div>
     </>
   );
